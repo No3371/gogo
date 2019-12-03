@@ -2,6 +2,7 @@ package gogo
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -50,4 +51,11 @@ func parseHeader(command string) (parsed string) {
 	}
 	log.Printf("[INFO] Parsed command: %s -> %s", command, parsed)
 	return parsed
+}
+
+func ShowRegisteredCommands() {
+	fmt.Print("GOGO registered commands:\n")
+	for k, v := range handlers {
+		fmt.Printf("> %s: %v", k, v == nil)
+	}
 }
