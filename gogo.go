@@ -79,6 +79,15 @@ func parseHeader(command string) (header string, parsed string) {
 func ShowRegisteredCommands() {
 	fmt.Print("[GOGO] GOGO registered commands:\n")
 	for k, v := range handlers {
-		fmt.Printf("> %s: %v\n", k, v == nil)
+		if v == nil {
+			continue
+		}
+		fmt.Printf("> %s\n", k)
+	}
+	for k, v := range arrayhandlers {
+		if v == nil {
+			continue
+		}
+		fmt.Printf("> %s (Expect array arguments)\n", k)
 	}
 }
