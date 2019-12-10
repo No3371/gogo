@@ -72,22 +72,24 @@ func parseHeader(command string) (header string, parsed string) {
 		header = command[:i]
 		parsed = command[i+1:]
 	}
-	log.Printf("[INFO] Parsed command: %s -> %s", command, parsed)
+	log.Printf("[GOGO] Parsed command:\n%s -> %s\n", command, parsed)
 	return header, parsed
 }
 
 func ShowRegisteredCommands() {
 	fmt.Print("[GOGO] GOGO registered commands:\n")
+	fmt.Print("These handlers expect single arguments:\n")
 	for k, v := range handlers {
 		if v == nil {
 			continue
 		}
-		fmt.Printf("> %s\n", k)
+		fmt.Printf(" > %s\n", k)
 	}
+	fmt.Print("These handlers expect array arguments:\n")
 	for k, v := range arrayhandlers {
 		if v == nil {
 			continue
 		}
-		fmt.Printf("> %s (Expect array arguments)\n", k)
+		fmt.Printf(" > %s\n", k)
 	}
 }
