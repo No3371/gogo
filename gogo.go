@@ -19,23 +19,27 @@ func Letsgogo() {
 	lock = new(sync.RWMutex)
 	go func() {
 		log.Print("[GOGO] Let's go! gogo initiated.\n")
+		defer log.Print("[ERROR > GOGO] GOGO is down!\n")
 		reader := bufio.NewReader(os.Stdin)
-		input := ""
 		for {
-			input, _ = reader.ReadString('\n')
+			input, err := reader.ReadString('\n')
+			if err != nil {
+				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
+				continue
+			}
 			input = input[:len(input)-2]
 			h, p := parseHeader(input)
 			if strings.ContainsAny(p, ",") {
 				if _, ok := arrayhandlers[h]; ok {
 					arrayhandlers[h](strings.Split(p, ","))
 				} else {
-					log.Printf("[GOGO] Unknown command: %s.\n", input)
+					log.Printf("[GOGO] Unknown command: %s\n", input)
 				}
 			} else {
 				if _, ok := handlers[h]; ok {
 					handlers[h](p)
 				} else {
-					log.Printf("[GOGO] Unknown command: %s.\n", input)
+					log.Printf("[GOGO] Unknown command: %s\n", input)
 
 				}
 			}
