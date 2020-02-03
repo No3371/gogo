@@ -27,7 +27,7 @@ func Letsgogo() {
 				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
 				continue
 			}
-			input = input[:len(input)-2]
+			input = input[:len(input)-1]
 			h, p := parseHeader(input)
 			if strings.ContainsAny(p, ",") {
 				if _, ok := arrayhandlers[h]; ok {
