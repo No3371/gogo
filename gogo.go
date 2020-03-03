@@ -10,12 +10,13 @@ import (
 )
 
 var handlers map[string]func(command string)
-var arrayhandlers map[string]func(command []string)
+var arrayhandlers map[string]func(commands []string)
 var lock *sync.RWMutex
 
 // Letsgogo = Init
 func Letsgogo() {
 	handlers = make(map[string]func(command string))
+	arrayhandlers = make(map[string]func(commands []string))
 	lock = new(sync.RWMutex)
 	go func() {
 		log.Print("[GOGO] Let's go! gogo initiated.\n")
