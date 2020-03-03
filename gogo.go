@@ -34,7 +34,7 @@ func Letsgogo() {
 				if _, ok := arrayhandlers[h]; ok {
 					arrayhandlers[h](strings.Split(p, ","))
 				} else {
-					log.Printf("[GOGO] Unknown command: %s\n", input)
+					log.Printf("[GOGO] Unknown array command: %s\n", input)
 				}
 			} else {
 				if _, ok := handlers[h]; ok {
@@ -55,8 +55,8 @@ func RegisterCommand(header string, handler func(command string)) {
 		handlers = make(map[string]func(command string))
 	}
 	lock.Lock()
+	defer lock.Unlock()
 	handlers[header] = handler
-	lock.Unlock()
 }
 
 func RegisterArrayCommand(header string, handler func(command []string)) {
@@ -64,8 +64,8 @@ func RegisterArrayCommand(header string, handler func(command []string)) {
 		arrayhandlers = make(map[string]func(command []string))
 	}
 	lock.Lock()
+	defer lock.Unlock()
 	arrayhandlers[header] = handler
-	lock.Unlock()
 }
 
 func parseHeader(command string) (header string, parsed string) {
