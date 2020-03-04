@@ -22,7 +22,8 @@ func Letsgogo() {
 		log.Print("[GOGO] Let's go! gogo initiated.\n")
 		defer log.Print("[ERROR > GOGO] GOGO is down!\n")
 		reader := bufio.NewReader(os.Stdin)
-		loop:for {
+	loop:
+		for {
 			input, err := reader.ReadString('\n')
 			if err != nil {
 				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
@@ -31,7 +32,7 @@ func Letsgogo() {
 			input = input[:len(input)-1]
 			h, p := parseHeader(input)
 			for i := 0; i < len(p); i++ {
-				fmt.Printf("%v+", []byte(p))
+				fmt.Printf("%d", p[i])
 				if p[i] == ',' {
 					if _, ok := arrayhandlers[h]; ok {
 						arrayhandlers[h](strings.Split(p, ","))
