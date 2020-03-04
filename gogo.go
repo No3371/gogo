@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -29,10 +30,17 @@ func Letsgogo() {
 				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
 				continue
 			}
+			switch runtime.GOOS {
+			case "windows":
+				input = input[:len(input)-1]
+				break
+			case "linux":
+				input = input[:len(input)-2] // DC3 character from ssh?
+				break
+			}
 			input = input[:len(input)-1]
 			h, p := parseHeader(input)
 			for i := 0; i < len(p); i++ {
-				fmt.Printf("%d", p[i])
 				if p[i] == ',' {
 					if _, ok := arrayhandlers[h]; ok {
 						arrayhandlers[h](strings.Split(p, ","))
