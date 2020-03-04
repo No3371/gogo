@@ -31,7 +31,7 @@ func Letsgogo() {
 			input = input[:len(input)-1]
 			h, p := parseHeader(input)
 			for i := 0; i < len(p); i++ {
-				log.Printf("%c", p[i])
+				fmt.Printf("%v+", []byte(p))
 				if p[i] == ',' {
 					if _, ok := arrayhandlers[h]; ok {
 						arrayhandlers[h](strings.Split(p, ","))
