@@ -30,12 +30,15 @@ func Letsgogo() {
 				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
 				continue
 			}
+			if len(input) < 1 {
+				continue
+			}
 			switch runtime.GOOS {
 			case "windows":
 				input = input[:len(input)-1]
 				break
 			case "linux":
-				input = input[:len(input)-2] // DC3 character from ssh?
+				input = input[:len(input)-1] // DC3 character from ssh?
 				break
 			}
 			input = input[:len(input)-1]
