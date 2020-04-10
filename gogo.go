@@ -85,7 +85,7 @@ func RegisterArrayCommand(header string, handler func(command []string)) {
 	fmt.Printf(("[GOGO] Registered array command: %s\n"), header)
 }
 
-func ClearRegisteredCommand(heder string) {
+func ClearRegisteredCommand(header string) {
 	if handlers == nil {
 		handlers = make(map[string]func(command string))
 	}
@@ -94,7 +94,7 @@ func ClearRegisteredCommand(heder string) {
 	delete(handlers, header)
 }
 
-func ClearRegisteredArrayCommand(heder string) {
+func ClearRegisteredArrayCommand(header string) {
 	if arrayhandlers == nil {
 		arrayhandlers = make(map[string]func(command []string))
 	}
