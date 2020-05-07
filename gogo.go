@@ -27,7 +27,6 @@ func Letsgogo() {
 		Logger("[GOGO] Let's go! gogo initiated.\n")
 		defer Logger("[ERROR > GOGO] GOGO is down!\n")
 		reader := bufio.NewReader(os.Stdin)
-	loop:
 		for {
 			var input string
 			var err error
@@ -36,30 +35,32 @@ func Letsgogo() {
 				Logger(fmt.Sprintf("[GOGO] An error occured when reading input: %s\n", err))
 				continue
 			}
-			strings.TrimRight(input, "\r\n")
+			input = strings.TrimRight(input, "\r\n")
 			if len(input) == 0 {
 				continue
 			}
-			Logger(fmt.Sprintf("[GOGO] Parsed command: %s", input))
-			h, p := parseHeader(input)
-			for i := 0; i < len(p); i++ {
-				if p[i] == ',' {
-					if _, ok := arrayhandlers[h]; ok {
-						arrayhandlers[h](strings.Split(p, ","))
-					} else {
-						Logger(fmt.Sprintf("[GOGO] Unknown array command: %s\n", input))
-					}
-					continue loop
-				}
-			}
-			if _, ok := handlers[h]; ok {
-				handlers[h](p)
-			} else {
-				Logger(fmt.Sprintf("[GOGO] Unknown command: %s\n", input))
-
-			}
+			Trigger(input)
 		}
 	}()
+}
+
+func Trigger(command string) {
+	header, body := parseHeader(command)
+	Logger(fmt.Sprintf("[GOGO] Parsed command: %s(%s)", command, body))
+	isArray := strings.ContainsRune(body, ',')
+	if isArray {
+		if _, ok := arrayhandlers[header]; ok {
+			arrayhandlers[header](strings.Split(body, ","))
+		} else {
+			Logger(fmt.Sprintf("[GOGO] Unknown command header: %s\n", command))
+		}
+	} else {
+		if _, ok := handlers[header]; ok {
+			handlers[header](body)
+		} else {
+			Logger(fmt.Sprintf("[GOGO] Unknown command header: %s\n", command))
+		}
+	}
 }
 
 // header: "exit" -> "exit:0" -> "0"
