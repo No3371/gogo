@@ -9,8 +9,7 @@ import (
 	"sync"
 )
 
-var handlers map[string]func(command string)
-var arrayhandlers map[string]func(commands []string)
+var handlers map[string]func(params []string)
 var lock *sync.RWMutex
 var Logger func(v ...interface{})
 
@@ -20,8 +19,7 @@ func init() {
 
 // Letsgogo = Init
 func Letsgogo() {
-	handlers = make(map[string]func(command string))
-	arrayhandlers = make(map[string]func(commands []string))
+	handlers = make(map[string]func(params []string))
 	lock = new(sync.RWMutex)
 	go func() {
 		Logger("[GOGO] Let's go! gogo initiated.\n")
@@ -45,29 +43,19 @@ func Letsgogo() {
 }
 
 func Trigger(command string) {
-	header, body := parseHeader(command)
-	Logger(fmt.Sprintf("[GOGO] Parsed command: %s(%s)", command, body))
-	isArray := strings.ContainsRune(body, ',')
-	if isArray {
-		if _, ok := arrayhandlers[header]; ok {
-			arrayhandlers[header](strings.Split(body, ","))
-		} else {
-			Logger(fmt.Sprintf("[GOGO] Unknown command header: %s\n", command))
-		}
+	commands := strings.Split(command, " ")
+	if _, ok := handlers[commands[0]]; ok {
+		handlers[commands[0]](commands[1:])
 	} else {
-		if _, ok := handlers[header]; ok {
-			handlers[header](body)
-		} else {
-			Logger(fmt.Sprintf("[GOGO] Unknown command header: %s\n", command))
-		}
+		Logger(fmt.Sprintf("[GOGO] Unknown command header: %s\n", command))
 	}
 }
 
 // header: "exit" -> "exit:0" -> "0"
 // header: "exit" -> "exit" -> "exit"
-func RegisterCommand(header string, handler func(command string)) {
+func RegisterCommand(header string, handler func(params []string)) {
 	if handlers == nil {
-		handlers = make(map[string]func(command string))
+		handlers = make(map[string]func(params []string))
 	}
 	lock.Lock()
 	defer lock.Unlock()
@@ -75,57 +63,22 @@ func RegisterCommand(header string, handler func(command string)) {
 	Logger(fmt.Sprintf("[GOGO] Registered command: %s\n", header))
 }
 
-func RegisterArrayCommand(header string, handler func(command []string)) {
-	if arrayhandlers == nil {
-		arrayhandlers = make(map[string]func(command []string))
-	}
-	lock.Lock()
-	defer lock.Unlock()
-	arrayhandlers[header] = handler
-	Logger(fmt.Sprintf("[GOGO] Registered array command: %s\n", header))
-}
-
-func ClearRegisteredCommand(header string) {
+func UnregisterCommand(command string) {
 	if handlers == nil {
-		handlers = make(map[string]func(command string))
+		handlers = make(map[string]func(params []string))
 	}
 	lock.Lock()
 	defer lock.Unlock()
-	delete(handlers, header)
-}
-
-func ClearRegisteredArrayCommand(header string) {
-	if arrayhandlers == nil {
-		arrayhandlers = make(map[string]func(command []string))
-	}
-	lock.Lock()
-	defer lock.Unlock()
-	delete(arrayhandlers, header)
-}
-
-func parseHeader(command string) (header string, parsed string) {
-	i := strings.Index(command, ":")
-	if i == -1 {
-		header = command
-		parsed = command
+	if _, ok := handlers[command]; ok {
+		delete(handlers, command)
 	} else {
-		header = command[:i]
-		parsed = command[i+1:]
+		Logger(fmt.Sprintf("[GOGO] Not registered: %s", command))
 	}
-	return header, parsed
 }
 
 func ShowRegisteredCommands() {
 	fmt.Print("[GOGO] GOGO registered commands:\n")
-	fmt.Print("These handlers expect single arguments:\n")
 	for k, v := range handlers {
-		if v == nil {
-			continue
-		}
-		fmt.Printf(" > %s\n", k)
-	}
-	fmt.Print("These handlers expect array arguments:\n")
-	for k, v := range arrayhandlers {
 		if v == nil {
 			continue
 		}
