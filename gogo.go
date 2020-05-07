@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -13,6 +12,11 @@ import (
 var handlers map[string]func(command string)
 var arrayhandlers map[string]func(commands []string)
 var lock *sync.RWMutex
+var Logger func(v ...interface{})
+
+func init() {
+	Logger = log.Print
+}
 
 // Letsgogo = Init
 func Letsgogo() {
@@ -20,35 +24,30 @@ func Letsgogo() {
 	arrayhandlers = make(map[string]func(commands []string))
 	lock = new(sync.RWMutex)
 	go func() {
-		log.Print("[GOGO] Let's go! gogo initiated.\n")
-		defer log.Print("[ERROR > GOGO] GOGO is down!\n")
+		Logger("[GOGO] Let's go! gogo initiated.\n")
+		defer Logger("[ERROR > GOGO] GOGO is down!\n")
 		reader := bufio.NewReader(os.Stdin)
 	loop:
 		for {
-			input, err := reader.ReadString('\n')
+			var input string
+			var err error
+			input, err = reader.ReadString('\n')
 			if err != nil {
-				log.Printf("[GOGO] An error occured when reading input: %s\n", err)
+				Logger(fmt.Sprintf("[GOGO] An error occured when reading input: %s\n", err))
 				continue
 			}
-			if len(input) < 1 {
+			strings.TrimRight(input, "\r\n")
+			if len(input) == 0 {
 				continue
 			}
-			switch runtime.GOOS {
-			case "windows":
-				input = input[:len(input)-1]
-				break
-			case "linux":
-				input = input[:len(input)-1] // DC3 character from ssh?
-				break
-			}
-			input = input[:len(input)-1]
+			Logger(fmt.Sprintf("[GOGO] Parsed command: %s", input))
 			h, p := parseHeader(input)
 			for i := 0; i < len(p); i++ {
 				if p[i] == ',' {
 					if _, ok := arrayhandlers[h]; ok {
 						arrayhandlers[h](strings.Split(p, ","))
 					} else {
-						log.Printf("[GOGO] Unknown arraycommand: %s\n", input)
+						Logger(fmt.Sprintf("[GOGO] Unknown array command: %s\n", input))
 					}
 					continue loop
 				}
@@ -56,7 +55,7 @@ func Letsgogo() {
 			if _, ok := handlers[h]; ok {
 				handlers[h](p)
 			} else {
-				log.Printf("[GOGO] Unknown command: %s\n", input)
+				Logger(fmt.Sprintf("[GOGO] Unknown command: %s\n", input))
 
 			}
 		}
@@ -72,7 +71,7 @@ func RegisterCommand(header string, handler func(command string)) {
 	lock.Lock()
 	defer lock.Unlock()
 	handlers[header] = handler
-	fmt.Printf(("[GOGO] Registered command: %s\n"), header)
+	Logger(fmt.Sprintf("[GOGO] Registered command: %s\n", header))
 }
 
 func RegisterArrayCommand(header string, handler func(command []string)) {
@@ -82,7 +81,7 @@ func RegisterArrayCommand(header string, handler func(command []string)) {
 	lock.Lock()
 	defer lock.Unlock()
 	arrayhandlers[header] = handler
-	fmt.Printf(("[GOGO] Registered array command: %s\n"), header)
+	Logger(fmt.Sprintf("[GOGO] Registered array command: %s\n", header))
 }
 
 func ClearRegisteredCommand(header string) {
@@ -112,7 +111,6 @@ func parseHeader(command string) (header string, parsed string) {
 		header = command[:i]
 		parsed = command[i+1:]
 	}
-	log.Printf("[GOGO] Parsed command:\n%s -> %s\n", command, parsed)
 	return header, parsed
 }
 
