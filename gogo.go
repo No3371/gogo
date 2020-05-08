@@ -44,6 +44,8 @@ func Letsgogo() {
 
 func Trigger(command string) {
 	commands := strings.Split(command, " ")
+	lock.RLock()
+	defer lock.RUnlock()
 	if _, ok := handlers[commands[0]]; ok {
 		handlers[commands[0]](commands[1:])
 	} else {
