@@ -12,9 +12,11 @@ import (
 var handlers map[string]func(params []string)
 var lock *sync.RWMutex
 var Logger func(v ...interface{})
+var histories []string
 
 func init() {
 	Logger = log.Print
+	histories = make([]string, 0, 10)
 }
 
 // Letsgogo = Init
@@ -30,6 +32,10 @@ func Letsgogo() {
 			var err error
 			input, err = reader.ReadString('\n')
 			if err != nil {
+				if err.Error() == "EOF" {
+					Logger("[GOGO] Read EOF, closing GOGO.")
+					return
+				}
 				Logger(fmt.Sprintf("[GOGO] An error occured when reading input: %s\n", err))
 				continue
 			}
@@ -43,6 +49,12 @@ func Letsgogo() {
 }
 
 func Trigger(command string) {
+	if histories[len(histories)-1] != command {
+		if len(histories) > 9 {
+			histories = histories[1:]
+		}
+		histories = append(histories, command)
+	}
 	commands := strings.Split(command, " ")
 	lock.RLock()
 	defer lock.RUnlock()
@@ -86,4 +98,8 @@ func ShowRegisteredCommands() {
 		}
 		fmt.Printf(" > %s\n", k)
 	}
+}
+
+func GetLastCommand(index int) string {
+	return histories[len(histories)-1-index]
 }
