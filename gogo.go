@@ -12,11 +12,11 @@ import (
 var handlers map[string]func(params []string)
 var lock *sync.RWMutex
 var Logger func(v ...interface{})
-var histories []string
+var history []string
 
 func init() {
 	Logger = log.Print
-	histories = make([]string, 0, 10)
+	history = make([]string, 0, 10)
 }
 
 // Letsgogo = Init
@@ -49,11 +49,11 @@ func Letsgogo() {
 }
 
 func Trigger(command string) {
-	if histories[len(histories)-1] != command {
-		if len(histories) > 9 {
-			histories = histories[1:]
+	if history[len(history)-1] != command {
+		if len(history) > 9 {
+			history = history[1:]
 		}
-		histories = append(histories, command)
+		history = append(history, command)
 	}
 	commands := strings.Split(command, " ")
 	lock.RLock()
@@ -101,5 +101,13 @@ func ShowRegisteredCommands() {
 }
 
 func GetLastCommand(index int) string {
-	return histories[len(histories)-1-index]
+	return history[len(history)-1-index]
+}
+
+func ShowHistroy() {
+	fmt.Print("[GOGO] GOGO command history:\n")
+	for _, v := range history {
+		fmt.Printf(" > %s\n", v)
+	}
+
 }
