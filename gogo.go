@@ -104,8 +104,7 @@ func GetLastCommand(index int) string {
 
 func ShowHistroy() {
 	fmt.Print("[GOGO] GOGO command history:\n")
-	for _, v := range history {
-		fmt.Printf(" > %s\n", v)
+	for i, v := range history {
+		fmt.Printf(" %d> %s\n", len(history)-1-i, v)
 	}
-
 }
