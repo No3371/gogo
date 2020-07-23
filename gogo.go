@@ -49,12 +49,10 @@ func Letsgogo() {
 }
 
 func Trigger(command string) {
-	if history[len(history)-1] != command {
-		if len(history) > 9 {
-			history = history[1:]
-		}
-		history = append(history, command)
+	if len(history) > 9 && history[len(history)-1] != command {
+		history = history[1:]
 	}
+	history = append(history, command)
 	commands := strings.Split(command, " ")
 	lock.RLock()
 	defer lock.RUnlock()
